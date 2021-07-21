@@ -88,6 +88,13 @@ RUN runs a command.
 * Upgrade the operating system in a RUN command (rather, change the FROM)
 
 
+## .dockerignore
+The .dockerignore file tells the docker daemon what files to ignore. When you run `docker build`, the files in your working directory (aka **build context**) are copied into the docker daemon, which then builds the container. 
+
+Note: files indicated in the .dockerignore file cannot be used by ADD or COPY. 
+
+
+## ADD
 
 
 
