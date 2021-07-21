@@ -94,7 +94,113 @@ The .dockerignore file tells the docker daemon what files to ignore. When you ru
 Note: files indicated in the .dockerignore file cannot be used by ADD or COPY. 
 
 
-## ADD
+## ADD and COPY
+
+ADD can take either a url to a file or a file on host. If you are ADDing a tar.gz file from the host filesystem, in the container that file will be un-tarballed, but if you are ADDing a tar.gz file from a URL, it will remain in tar.gz form.
+
+COPY, on the other hand, will just copy a file over exactly (no automated uncompressing).
+
+
+### ADD and COPY Dos and Don'ts 
+
+**Dos**
+* Use COPY with RUN if necessary.
+* Be mindful of what's in the .dockerignore file. 
+
+**Don'ts**
+* Don't use ADD if you can avoid it. 
+
+
+## USER
+
+Ideally you want to set the USER to have the smallest possible set of priveliges needed to operate.
+
+If building from a Ubuntu image, you could create a user via a command like
+
+```docker
+FROM ubuntu:18.10
+
+RUN groupadd -r app \
+  && useradd -r -g app appuser
+USER appuser
+``` 
+
+### USER Dos and Don'ts
+
+**Dos**
+* Create a user (if you can) for your service.
+* Default the container to a non-root user if possible.
+
+**Don'ts**
+* Don't switch USER too often (each switch creates a new layer).
+* Don't use root if you can avoid it.
+
+
+# Dockerfile Run-Time Instructions
+
+## ENV
+
+In contrast to ARGs (which only exist at build time), ENVs persist in the container as an environment variable. From the command line in a container, you can see all environment variables via the `env` command.
+
+### ENV Dos and Don'ts
+
+**Dos**
+* Do use them for documentation and modifying runtime behavior.
+	* They are baked into the final image.
+* Do use `docker run <image-name> env` or `docker inspect`.
+* Do set appropriate defaults.
+* Do be cognizant of inherited ENV variables.
+
+**Don'ts**
+* Don't put secrets or sensitive information in ENV variables.
+* Don't override ENVs from the parent image unless absolutely necessary.
+
+
+## ENTRYPOINT and CMD
+
+ENTRYPOINT 
+
+CMD at the end of a Dockerfile can be overwritten at runtime by passing a parameter to the container in the `run` command.
+
+There are two different syntaxes
+
+CMD java -jar /var/docker-olp-0.0.1-SNAPSHOT.jar
+
+CMD ["java", "-jar", "/var/docker-olp-0.0.1-SNAPSHOT.jar"]
+
+But these are kind of clunky, and there's a better way.
+
+### entrypoint.sh
+Take an `entrypoint.sh` file like the one below
+
+```bash
+#!/bin/sh
+set -e
+
+# entrypoint.sh
+if [ "$1" = 'default' ]; then
+	# do default thing here
+	echo "Running default"
+	exec java -jar /var/docker-olp-0.0.1-SNAPSHOT.jar
+else
+	echo "Running user supplied arg"
+	# if the user supplied, say, /bin/bash
+	exec "$@"
+fi
+
+```
+note: `set -e` sets the error flag
+
+With this `entrypoint.sh` script, we can amend a Dockerfile so that it ends with 
+
+```bash
+...
+COPY entrypoint.sh entrypoint.sh
+ENTRYPOINT ["./entrypoint.sh"]
+CMD ["default"]
+```
+
+which will behave like the CMD lines above, but be much less clunky. If the user doesn't provide any args at runtime, then the `CMD ["default"]` line won't be overwritten, thus "default" will be passed to the `entrypoint.sh` script and the `exec java ...` line will run, but if the user provides an arg, the CMD line will be ignored and the other block in the `entrypoint.sh` script will be entered. This allows us to supply much more complex logic.
 
 
 
