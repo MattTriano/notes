@@ -5,6 +5,24 @@
 
 A relational database table is a collection of related data consisting of rows (or records) and columns (or features). Relational database table columns necessarily have a defined data type (which tells the database management system how much memory to allocate to each value in that column). SQLAlchemy `Table` objects have the ability to create corresponding database tables, so a `Table` object must contain information on its `Columns` as well as those `Column`s' data types.  
 
+## Joins
+
+**methods**
+* `select(left_table).join(right_table)`
+* `Select.join_from(left_table, right_table)`
+* `select(left_table).join(right_table, isouter=True)`
+* `select(left_table).join(right_table, full=True)`
+
+
+## Set Operations
+
+**methods**
+* `union()`
+* `union_all()`
+* `intersect()`
+* `intersect_all()`
+* `except_()`
+* `except_all()`
 
 ## ORM workflow
 
@@ -47,3 +65,6 @@ A relational database table is a collection of related data consisting of rows (
     
 * **Table: target** term:
     * When defining a `ForeignKeyConstraint` for a given `Table`, you will have to reference one or more columns of another `Table`. A lot of documentation will refer to that other `Table` as the **target**.
+    
+* **UNION** concept (set operation):
+    * Allows for the concatenation of SELECT statements so that 
