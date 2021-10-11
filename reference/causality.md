@@ -22,12 +22,17 @@ $E(Y|A=1)$ means "expected value of $Y$ given $A=1$", which implicitly restricts
 
 ### Terms
 
+* Observed Outcome
+    * $Y$
+* Potential Outcome(s) given treatment $a$
+    * $Y^a$
 * Causal relative risk
     * $E(\frac{Y^1}{Y^0})$
 * Causal effect of treatment on the treated
     * $E(Y^1-Y^0|A=1)$
 * Average causal effect in the subpopulation with covariate $V=v$
     * $E(Y^1-Y^0|V=v)$
+   
     
 ## Causal Assumptions
 
@@ -41,6 +46,8 @@ This assumption allows us to express the potential outcome for the $i^{th}$ pers
 ### Consistency Assumption
 
 $Y=Y^a$ if $A=a \forall a$
+
+The potential outcome under treatment $A=a, Y^a$ is equal to the ovbserved outcome if the actual treatment received is $A=a$.
 
 ### Ignorability Assumption
 
@@ -143,6 +150,66 @@ A common issue with this design emerges when the comparison treatment is **no tr
 Having an Active Comparator design (where the comparison treatment is an active treatment, ie not no-treatment). 
 
 For example, if the treatment is yoga and the variable of interest is blood pressure, an active comparator design could have spin class as the comparison treatment. This would also reduce the number of confounding factors, as the populations of people who do yoga or do spin class likely have more in common than the populations of people who do yoga and those who do not excercise at all.
+
+# Confounding
+
+Confounders are variables that affect treatment **and** affect the ourcome.
+
+To control for confounders, we need to 
+1. identify the set of variables $X$ that make the ignorability assumption hold, and
+2. control for these variables in our model(s) that seek to estimate causal effects.
+
+## Causal Graphs
+These tools help by making assumptions explicit (via edges in the graph), and guide us to the variables that must be controled for (not sure how yet, though).
+
+### Simple Graphs
+* A effects Y
+    * $ A \rightarrow Y $
+* A and Y are associated
+    * $ A --- Y $
+
+### DAG Examples
+
+#### Ex1
+$$ D \rightarrow A; A \rightarrow B; C $$
+This DAG implies:
+* $P(C|A,B,D) = P(C)$  ie, $C$ is independant of $D$, $A$, and $B$,
+* $P(B|A,C,D) = P(B|A)$ ie $B \Perp D,C|A$ ie B is independent of D and C, conditional on A.
+* $P(B|D)\neq P(B)$ ie $B$ and $D$ are (marginally) dependent
+* $P(D|A,B,C) = P(D|A)$ ie $D \Perp B,C|A$ ie D is independent of B and C, conditional on A.
+
+#### Ex2
+
+$$ D \rightarrow A; D \rightarrow B; B \rightarrow C $$
+This DAG implies:
+* $P(A|B,C,D) = P(A|D)$  ie $A \Perp B,C|D$ ie A is independent of $B$, $C$ conditional on D.
+* $P(D|A,B,C)=P(D|A,B)$ is $\D \Perp C|B$ ie $D$ is independent of $C$ given $B$ (or conditional on $B$).
+
+#### Ex3
+
+$$ D \rightarrow A; D \rightarrow B; B \rightarrow C; A \rightarrow C $$
+This DAG implies:
+* $P(A|B,C,D) = P(A|C,D)$ ie $A \Perp B|C,D$ ie $A$ is independent of B given $C$ and $D$.
+
+### Joint Distribution Decomposition
+We can decompose the joint distribution by sequentially conditioning only on sets of parents.
+* Start with roots (nodes with no parents)
+* Proceed down the descendant line, always conditioning on parents
+
+#### Ex1
+$$ D \rightarrow A; A \rightarrow B; C $$
+This DAG implies:
+* $P(A,B,C,D)=P(C)P(D)P(A|D)P(B|A)$
+
+#### Ex2
+$$ D \rightarrow A; D \rightarrow B; B \rightarrow C $$
+This DAG implies:
+* $P(A,B,C,D)=P(D)P(A|D)P(B|D)P(C|B)$
+
+#### Ex3
+$$ D \rightarrow A; D \rightarrow B; B \rightarrow C; A \rightarrow C $$
+This DAG implies:
+* $P(A,B,C,D) = P(D)P(A|D)P(B|D)P(C|A,B)$
 
 
 # Glossary
