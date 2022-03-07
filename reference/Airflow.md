@@ -47,6 +47,44 @@ ag = DAG(
 )
 ```
 
+## Context
+
+| Key | Description | Example value |
+| --- | --- | --- |
+| conf | Provides access to Airflow configuration | `airflow.configuration.AirflowConfigParser` object |
+| dag | The current DAG object | DAG object |
+| dag_run | The current DagRun object | DagRun object |
+| ds | execution_date formatted as %Y-%m-%d | “2019-01-01” |
+| ds_nodash | execution_date formatted as %Y%m%d | “20190101” |
+| execution_date | The start datetime of the task’s interval | `pendulum.datetime.DateTime object` |
+| inlets | Shorthand for task.inlets, a feature to track input data sources for data lineage | [] |
+| macros | airflow.macros module | macros module |
+| next_ds | execution_date of the next interval (= end of current interval) formatted as %Y-%m-%d | “2019-01-02” |
+| next_ds_nodash | execution_date of the next interval (= end of current interval) formatted as %Y%m%d | “20190102” |
+| next_execution_date | The start datetime of the task’s next interval (= end of current interval) | pendulum.datetime.DateTime object |
+| outlets | Shorthand for task.outlets, a feature to track output data sources for data lineage | [] |
+| params | User-provided variables to the task context | {} |
+| prev_ds | execution_date of the previous interval formatted as %Y-%m-%d | “2018-12-31” |
+| prev_ds_nodash | execution_date of the previous interval formatted as %Y%m%d | “20181231” |
+| prev_execution_date | The start datetime of the task’s previous interval | pendulum.datetime.DateTime object |
+| prev_execution_date_success | Start datetime of the last successfully completed run of the same task (only in past) | pendulum.datetime.DateTime object |
+| prev_start_date_success | Date and time on which the last successful run of the same task (only in past) was started | pendulum.datetime.DateTime object |
+| run_id | The DagRun’s run_id (a key typically composed of a prefix + datetime) | “manual__2019-01-01T00:00:00+00:00” |
+| task | The current operator | PythonOperator object |
+| task_instance | The current TaskInstance object | TaskInstance object |
+| task_instance_key_str | A unique identifier for the current TaskInstance ({dag_id}__{task_id}__{ds_nodash}) | “dag_id__task_id__20190101” |
+| templates_dict | User-provided variables to the task context | {} |
+| test_mode | Whether Airflow is running in test mode (configuration property) | False |
+| ti | The current TaskInstance object, same as task_instance | TaskInstance object |
+| tomorrow_ds | ds plus one day | “2019-01-02” |
+| tomorrow_ds_nodash | ds_nodash plus one day | “20190102” |
+| ts | execution_date formatted according to ISO8601 format | “2019-01-01T00:00:00+00:00” |
+| ts_nodash | execution_date formatted as %Y%m%dT%H%M%S | “20190101T000000” |
+| ts_nodash_with_tz | ts_nodash with time zone information | “20190101T000000+0000” |
+| var | Helpers objects for dealing with Airflow variables | {} |
+| yesterday_ds | ds minus one day | “2018-12-31” |
+| yesterday_ds_nodash | ds_nodash minus one day | “20181231” |
+
 ## Dependencies
 
 If a task (eg `clean_weather`) that depends on the product of another task (eg `fetch_weather`), there is a dependancy which you can represent as so
@@ -69,3 +107,55 @@ join_datasets = PythonOperator(
     trigger_rule="none_failed",
 )
 ```
+
+### Trigger Rules 
+
+Per [Airflow documentation](https://airflow.apache.org/docs/apache-airflow/1.10.2/concepts.html?highlight=trigger#trigger-rules
+* all_success: (default) all parents have succeeded
+* all_failed: all parents are in a failed or upstream_failed state
+* all_done: all parents are done with their execution
+* one_failed: fires as soon as at least one parent has failed, it does not wait for all parents to be done
+* one_success: fires as soon as at least one parent succeeds, it does not wait for all parents to be done
+* none_failed: all parents have not failed (failed or upstream_failed) i.e. all parents have succeeded or been skipped
+* dummy: dependencies are just for show, trigger at will
+
+### Sharing data between tasks
+
+#### XComs
+
+Airflow has some data service called XComs that allows you to push data into xcoms in one function call in a task and pull that data in another function call (in a separate task). 
+
+#### Taskflow API (introduced in Airflow 2.0)
+This allows us to define functions as tasks within DAGs via a decorator, and these functions can just return values.
+
+```python
+from airflow import DAG
+from airflow.decorators import task
+from airflow.operators.dummy import DummyOperator
+
+
+with DAG(
+    dag_id="taskflow_demo",
+    start_date=airflow.utils.dates.days_ago(3),
+    schedule_interval="@daily",
+) as dag:
+    fetch_sales = DummyOperator(task_id="fetch_sales")
+    clean_sales = DummyOperator(task_id="clean_sales")
+
+    fetch_sales >> clean_sales
+
+    @task
+    def train_model():
+        model_id = str(uuid.uuid4())
+        return model_id
+
+    @task
+    def deploy_model(model_id: str):
+        print(f"Deploying model {model_id}")
+
+    model_id = train_model()
+    deploy_model(model_id)
+
+    clean_sales >> model_id
+```
+
