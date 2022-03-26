@@ -77,17 +77,61 @@ CommitDate: Thu Mar 24 19:23:38 2022 -0500
 Most of the time, `AuthorDate` and `CommitDate` will be the same, but if you `cherry-pick` a commit from one branch onto another branch, which will change the `committer` and `CommitDate` will refer to the person who did the cherry-pick and the time they did it.
 
 
+```bash
+git log --format=raw
+commit fa2d1cb7bf57f2d6b705532fa6582adb07a808d1
+tree ea5cf8a680d24dfac000c0effdca12a73999c0d3
+parent 6c89636d630a9832059b9197e3339e283a9203cc
+author matttriano <matt.triano@gmail.com> 1648167818 -0500
+committer matttriano <matt.triano@gmail.com> 1648167818 -0500
 
+    Took some notes on Terraform and Infra as Code as a concept.
+```
 
+raw logs added in the hash of the tree and parent of that commit
 
+We can also pull up that specific commit via the `cat-file`
 
+```bash
+$ git cat-file -p fa2d1
+tree ea5cf8a680d24dfac000c0effdca12a73999c0d3
+parent 6c89636d630a9832059b9197e3339e283a9203cc
+author matttriano <matt.triano@gmail.com> 1648167818 -0500
+committer matttriano <matt.triano@gmail.com> 1648167818 -0500
 
+Took some notes on Terraform and Infra as Code as a concept.
+```
+## Porcelain commands vs Plumbing commands
 
+The analogy is to toilets. The porcelain is the high level user interface, while the plumbing is the lower level infrastructure. 
 
+Examples of porcelain commands
+* `git add`
+* `git commit`
 
+Examples of plumbing commands
+* `git cat-file -p`
 
+### Git Objects
 
+There are 4 differe "types" of git **objects**:
+* commit
+* tree
+* blob
+* annotated tag
 
+## Trees
+
+A tree is a container for blobs and trees. 
+
+## Blobs
+
+Blobs are binary files marked with a hash of the file's contents. It is deterministic. Repeatedly hashing (specifically, git uses SHA-1 hashes for this) a given input string will output the same hash.
+
+```bash
+$ echo "this is a blob" | git hash-object --stdin
+046e12048379261aa0f93d263701c95192ba6e42
+```
 
 
 
