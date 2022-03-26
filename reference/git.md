@@ -133,6 +133,7 @@ $ echo "this is a blob" | git hash-object --stdin
 046e12048379261aa0f93d263701c95192ba6e42
 ```
 
+## .git directory
 
 
 
