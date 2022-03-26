@@ -191,9 +191,12 @@ Unlike other version control systems (which just track the deltas, or changes to
 
 
 
+# Good Commit Practices
 
+In general, you should aim for a commit to only change one "thing" (ie should be focused on one specific concept/idea/issue and shouldn't include changes not relevant to that specific thing), and the commit message should be able to accurately describe all included changes. To achive this, it's important to plan ahead and break down tasks into smaller tasks until they are singular little units that can be described by a single sentance (ie a commit message).
 
-
+**The Message**:
+Describe the change, not the steps taken. One strategy is to use the imperative present tense.
 
 
 
