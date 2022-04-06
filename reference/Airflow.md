@@ -49,41 +49,41 @@ ag = DAG(
 
 ## Context
 
-| Key | Description | Example value |
+| Key | Description | Value |
 | --- | --- | --- |
-| conf | Provides access to Airflow configuration | `airflow.configuration.AirflowConfigParser` object |
-| dag | The current DAG object | DAG object |
-| dag_run | The current DagRun object | DagRun object |
-| ds | execution_date formatted as %Y-%m-%d | “2019-01-01” |
-| ds_nodash | execution_date formatted as %Y%m%d | “20190101” |
+| conf | Access Airflow config | `airflow.configuration.AirflowConfigParser` |
+| dag | The current DAG | DAG |
+| dag_run | The current DagRun | DagRun |
+| ds | execution_date (%Y-%m-%d) | date string |
+| ds_nodash | execution_date formatted as %Y%m%d | date string |
 | execution_date | The start datetime of the task’s interval | `pendulum.datetime.DateTime object` |
 | inlets | Shorthand for task.inlets, a feature to track input data sources for data lineage | [] |
 | macros | airflow.macros module | macros module |
-| next_ds | execution_date of the next interval (= end of current interval) formatted as %Y-%m-%d | “2019-01-02” |
-| next_ds_nodash | execution_date of the next interval (= end of current interval) formatted as %Y%m%d | “20190102” |
+| next_ds | execution_date of the next interval (= end of current interval) formatted as %Y-%m-%d | date string |
+| next_ds_nodash | execution_date of the next interval (= end of current interval) formatted as %Y%m%d | date string |
 | next_execution_date | The start datetime of the task’s next interval (= end of current interval) | pendulum.datetime.DateTime object |
 | outlets | Shorthand for task.outlets, a feature to track output data sources for data lineage | [] |
 | params | User-provided variables to the task context | {} |
-| prev_ds | execution_date of the previous interval formatted as %Y-%m-%d | “2018-12-31” |
-| prev_ds_nodash | execution_date of the previous interval formatted as %Y%m%d | “20181231” |
+| prev_ds | execution_date of the previous interval formatted as %Y-%m-%d | date string |
+| prev_ds_nodash | execution_date of the previous interval formatted as %Y%m%d | date string |
 | prev_execution_date | The start datetime of the task’s previous interval | pendulum.datetime.DateTime object |
 | prev_execution_date_success | Start datetime of the last successfully completed run of the same task (only in past) | pendulum.datetime.DateTime object |
 | prev_start_date_success | Date and time on which the last successful run of the same task (only in past) was started | pendulum.datetime.DateTime object |
-| run_id | The DagRun’s run_id (a key typically composed of a prefix + datetime) | “manual__2019-01-01T00:00:00+00:00” |
+| run_id | The DagRun’s run_id (a key typically composed of a prefix + datetime) | “{prefix}__{date string}” |
 | task | The current operator | PythonOperator object |
 | task_instance | The current TaskInstance object | TaskInstance object |
 | task_instance_key_str | A unique identifier for the current TaskInstance ({dag_id}__{task_id}__{ds_nodash}) | “dag_id__task_id__20190101” |
 | templates_dict | User-provided variables to the task context | {} |
 | test_mode | Whether Airflow is running in test mode (configuration property) | False |
 | ti | The current TaskInstance object, same as task_instance | TaskInstance object |
-| tomorrow_ds | ds plus one day | “2019-01-02” |
-| tomorrow_ds_nodash | ds_nodash plus one day | “20190102” |
-| ts | execution_date formatted according to ISO8601 format | “2019-01-01T00:00:00+00:00” |
-| ts_nodash | execution_date formatted as %Y%m%dT%H%M%S | “20190101T000000” |
-| ts_nodash_with_tz | ts_nodash with time zone information | “20190101T000000+0000” |
+| tomorrow_ds | ds plus one day | date string |
+| tomorrow_ds_nodash | ds_nodash plus one day | date string |
+| ts | execution_date formatted according to ISO8601 format | date string |
+| ts_nodash | execution_date formatted as %Y%m%dT%H%M%S | date string |
+| ts_nodash_with_tz | ts_nodash with time zone information | date string |
 | var | Helpers objects for dealing with Airflow variables | {} |
-| yesterday_ds | ds minus one day | “2018-12-31” |
-| yesterday_ds_nodash | ds_nodash minus one day | “20181231” |
+| yesterday_ds | ds minus one day | date string |
+| yesterday_ds_nodash | ds_nodash minus one day | date string |
 
 ## Dependencies
 
@@ -159,3 +159,19 @@ with DAG(
     clean_sales >> model_id
 ```
 
+## Operators
+### DockerOperator
+
+Available in the `apache-airflow-providers-docker` package.
+
+
+
+
+
+# Actual Steps Taken 
+
+A lot of steps might have to be backfilled, but I think they might just boil down to "install and setup docker"
+
+./breeze build-docs -- --package-filter apache-airflow
+
+./breeze build-docs -- --spellcheck-only --package-filter apache-airflow 
