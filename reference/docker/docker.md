@@ -164,8 +164,10 @@ CMD at the end of a Dockerfile can be overwritten at runtime by passing a parame
 
 There are two different syntaxes
 
+**Shell form**
 CMD java -jar /var/docker-olp-0.0.1-SNAPSHOT.jar
 
+**Exec form**
 CMD ["java", "-jar", "/var/docker-olp-0.0.1-SNAPSHOT.jar"]
 
 But these are kind of clunky, and there's a better way.
@@ -202,6 +204,17 @@ CMD ["default"]
 
 which will behave like the CMD lines above, but be much less clunky. If the user doesn't provide any args at runtime, then the `CMD ["default"]` line won't be overwritten, thus "default" will be passed to the `entrypoint.sh` script and the `exec java ...` line will run, but if the user provides an arg, the CMD line will be ignored and the other block in the `entrypoint.sh` script will be entered. This allows us to supply much more complex logic.
 
+### ENTRYPOINT and CMD Dos and Don'ts
+
+**Dos**
+* Do use the **exec** form (won't cause shell expansion!).
+* Do use ENTRYPOINT and CMD together.
+* Do use an `entrypoint.sh` script.
+
+**Don'ts**
+* Don't use the **shell** form if possible (it wraps the command in a shell, which will make the shell the root process rather than the actual process you explicitly indicate).
+
+## HEALTHCHECK
 
 
 
@@ -211,5 +224,7 @@ which will behave like the CMD lines above, but be much less clunky. If the user
 
 
 
+# Volumes
 
-
+## Listing volumes
+* `docker volume ls`
