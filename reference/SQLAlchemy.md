@@ -47,7 +47,18 @@ A relational database table is a collection of related data consisting of rows (
     Base.metadata.create_all(engine)
     ```
 
+## Misc Tips
 
+### Getting a table_object for an existing table
+
+You'll have to specify the `schema`, otherwise it will only return the `public` schema.
+
+```python
+from sqlalchemy import MetaData
+metadata_obj = MetaData(schema="user_data")
+metadata_obj.reflect(bind=engine)
+table_obj = metadata_obj.tables["user_data.address_table"]
+```
 
 ## Glossary
 
