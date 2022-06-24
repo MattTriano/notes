@@ -22,3 +22,84 @@ First, build your source distribution file, then publish it
 ```
 
 After entering your PyPI credentials, your package will upload and will immediately be installable by anyone via `pip install <your_packages_name>`.
+
+# More Modern Packaging
+
+*these notes are largely taken from this mCoding YouTube video named [Automated Testing in Python with pytest, tox, and GitHub Actions](https://youtu.be/DhUpxWjOhME?t=307)*
+
+## Files needed:
+1. `pyproject.toml`
+2. `setup.py`
+3. `setup.cfg`
+4. `requirements.txt`
+
+
+### 1. `pyproject.toml`
+
+example:
+
+```toml
+[build-system]
+requires = ["setuptools>=42.0", "wheel"]
+build-backend = "setuptools.build_meta"
+```
+
+This example config tells python to use tha standard `setuptools` packaging method which is based on a `setup.py` file.
+
+### 2. `setup.py`
+
+```python
+from setuptools import setup
+
+if __name__ == "__main__":
+    setup()
+```
+
+The video asserts it's increasingly seen as a security risk to have too much build or installation code in your `setup.py` file (although I'm skeptical about that as major packages like [pandas](https://github.com/pandas-dev/pandas/blob/main/setup.py), [pytorch](https://github.com/pytorch/pytorch/blob/master/setup.py), [scikit-learn](https://github.com/scikit-learn/scikit-learn/blob/main/setup.py), and many other well engineered packages have massive `setup.py` files), and advises using this barebones `setup.py` implementation, which facilitates installing the package in `editable` mode (although, per a comment pinned by mCoding, "It seems you no longer need setup.py to install in editable mode if you’re using pip >= 21.3").
+
+### 3. `setup.cfg`
+
+This is where you extract package metadata and other details to.
+
+```cfg
+[metadata]
+name = pezzetti
+description = a package of little tools.
+author = Matt Triano
+license = MIT
+license_file = LICENSE
+platforms = unix, linux, osx, cygwin, win32
+classifiers =
+    Programming Language :: Python :: 3
+    Programming Language :: Python :: 3 :: Only
+    Programming Language :: Python :: 3.6
+    Programming Language :: Python :: 3.7
+    Programming Language :: Python :: 3.8
+    Programming Language :: Python :: 3.9
+    Programming Language :: Python :: 3.10
+
+[options]
+packages =
+    pezzetti
+install_requires =
+    geopandas>=0.6
+python_requires = >=3.6
+package_dir =
+    =pezzetti
+```
+
+### 4. `requirements.txt`
+
+This is where you should pin specific versions needed to install the package or execute packaged code.
+
+```txt
+geopandas==0.10.2
+```
+
+## Installation
+
+With those files set, you can install the package via 
+
+```bash
+(pez_env) matt@matt:~/projects/pezzetti$ python -m pip install -e .
+```
