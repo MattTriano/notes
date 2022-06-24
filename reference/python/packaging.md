@@ -93,6 +93,7 @@ package_dir =
 This is where you should pin specific versions needed to install the package or execute packaged code.
 
 ```txt
+# requirements.txt
 geopandas==0.10.2
 ```
 
@@ -103,3 +104,124 @@ With those files set, you can install the package via
 ```bash
 (pez_env) matt@matt:~/projects/pezzetti$ python -m pip install -e .
 ```
+
+## Testing
+
+Writing tests is a good way to make sure your code does what you expect.
+
+### Additional Files and File Updates
+
+While not strictly necessary, it's a good idea to make a `requirements_dev.txt` file, which pins the versions of packages used in the development of the package.
+
+```txt
+# requirements_dev.txt
+flake8==3.9.2
+tox==3.24.3
+pytest==6.2.5
+pytest_cov==2.12.1
+mypy==0.910
+```
+
+#### Extending `setup.cfg` with testing and dev configs
+And you'll also need to update `setup.cfg` with testing info. Append something like the following to your `setup.cfg` file.
+
+```cfg
+[options.extras_require]
+testing =
+    pytest>=6.0
+    pytest_cov>=2.0
+    mypy>=0.910
+    flake8>=3.9
+    tox>=3.24
+
+[options.package_data]
+pezzetti = py.typed
+
+[flake8]
+max-line-length = 160
+```
+
+The `py.typed` part indicates the package has been type-hinted, and it requires that you create an empty file named `py.typed` in any directory with an `__init__.py` file (ie any directory containing importable modules).
+
+#### Extending `pyproject.toml` with testing and dev configs
+
+Append configs (like those shown below) to the `pyproject.toml` to govern the behavior of tools like pytest or mypy.
+
+```toml
+...
+[tool.pytest.ini_options]
+addopts = "--cov=slapping"
+testpaths = [
+    "tests",
+]
+
+[tool.mypy]
+mypy_path = "src"
+check_untyped_defs = true
+disallow_any_generics = true
+ignore_missing_imports = true
+no_implicit_optional = true
+show_error_codes = true
+strict_equality = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unreachable = true
+warn_unused_configs = true
+no_implicit_reexport = true
+```
+
+### Workflow
+
+#### install dev requirements
+
+```bash
+(pez_env) matt@matt:~/projects/pezzetti$ python -m pip install -r .\requirements_dev.txt
+```
+
+#### typechecking with `mypy`
+
+To run `mypy` typechecking, run
+
+```bash
+(pez_env) matt@matt:~/projects/pezzetti$ python -m mypy pezzetti
+```
+
+#### linting with `flake8`
+
+To run `flake8` linting, run
+
+```bash
+(pez_env) matt@matt:~/projects/pezzetti$ python -m flake8 pezzetti
+```
+
+If there are errors, they will be displayed. If there aren't linting errors, nothing will be displayed
+
+#### Testing with `pytest`
+
+To run `pytest` testing, run
+
+```bash
+(pez_env) matt@matt:~/projects/pezzetti$ python -m pytest
+```
+
+Notes up through 10:41 in the video.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+end
