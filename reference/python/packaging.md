@@ -204,7 +204,134 @@ To run `pytest` testing, run
 (pez_env) matt@matt:~/projects/pezzetti$ python -m pytest
 ```
 
-Notes up through 10:41 in the video.
+## Using pytest
+
+You have to write tests for pytest to run.
+
+Pytest looks through the test directory specified in the configs, then it looks for any module with a name that starts with `test_`, and for functions in those modules with names that start with `test_`.
+
+### pytest decorators
+
+* parameterizing function inputs.
+    * You can use the `@pytest.mark.parameterize()` decorator to define parameters to pass in to a function.
+* skipping functions
+    * `@pytest.mark.skip(reason="whatever")`
+    * `@pytest.mark.skipif(logic)`
+* functions that should fail
+    * `@pytest.mark.xfail`
+* functions that should raise a specific error
+    * use a context manager, like below
+
+```python
+def test_invalid_parameter(value: float):
+    with pytest.raises(ValueError):
+        operation_that_needs_ints(value)
+```
+
+### Sharing setup structures
+Use Fixtures!
+
+You can define a fixture within a script by using the `@pytest.fixture(scope="class|session|module|package")` decorator. If you want to share the fixture between many test modules, put the fixture in a module with the name `conftest.py`.
+* Note: if you have a fixture that will require some teardown (ie anything from a context manager), use `yield` instead of `return`.
+
+### Monkeypatch
+
+If you need to temporarily modify some system functionality for a testing purpose. For example, if you needed to capture output that would otherwise print to the console via stdout, you could do something like 
+
+```python
+import pytest
+import sys
+
+@pytest.fixture
+def capture_stdout(monkeypatch):
+    buffer = {"stdout": "", "write_calls": 0}
+
+    def fake_write(s):
+        buffer["stdout"] = buffer["stdout"] + s
+        buffer["write_calls"] = buffer["write_calls"] + 1
+
+    monkeypatch.setattr(sys.stdout, "write", fake_write)
+    return buffer
+```
+
+That temporarily replaces `sys.stdout`'s `.write()` method with the `fake_write()` method defined in `capture_stdout()`, and after the test that change is automatically undone.
+
+You can use that monkeypatched fixture as below
+
+```python
+def test_print(capture_stdout):
+    print("message")
+    assert capture_stdout["stdout"] == "message\n"
+```
+
+## Testing the package with different versions of python or packages
+
+You can test your package with many different versions of packages or python via the `tox` package's functionality.
+
+### Config file: `tox.ini`
+
+This is a `toml`-like file that will look like
+
+```ini
+[tox]
+minversion = 3.8.0
+envlist = py36, py37, py38, py39, flake8, mypy
+isolated_build = true
+
+[gh-actions]
+python =
+    3.6: py36, mypy, flake8
+    3.7: py37
+    3.8: py38
+    3.9: py39
+
+[testenv]
+setenv =
+    PYTHONPATH = {toxinidir}
+deps =
+    -r{toxinidir}/requirements_dev.txt
+commands =
+    pytest --basetemp={envtmpdir}
+
+[testenv:flake8]
+basepython = python3.6
+deps = flake8
+commands = flake8 src tests
+
+[testenv:mypy]
+basepython = python3.6
+deps =
+    -r{toxinidir}/requirements_dev.txt
+commands = mypy src
+```
+
+the `py36`, `py37`, `py38`, and `py39` envs are built into `tox`, while the `flake8`, `mypy` envs are not and must be specified in the `[testenv:flake8]` and `[testenv:mypy]` blocks (respectively).
+
+#### Running `tox`
+
+After configuring things in the `tox.ini` file, run `tox` via 
+
+```bash
+(pez_env) matt@matt:~/projects/pezzetti$ tox
+```
+
+This may take a long time, so this may only be worth running before pushing changes to `main`.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

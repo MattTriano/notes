@@ -71,3 +71,8 @@ y_pred = reg.predict(X_test)
 
 Regularization
 
+
+# Usage Notes
+
+Scikit-learn models require numeric dtypes and refuse to handle features with null values.
+

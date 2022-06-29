@@ -37,3 +37,6 @@ Use `tree -du -h` to show the total size of each directory (including subdir con
 `tail` prints out the last 10 lines of a file.
 
 Use the `-n` flag to specify the number of lines.
+
+## `ssh`
+`ssh` allows you to (attempt to) connect to another machine, and if successful, provides a (secure) shell on that machine.
